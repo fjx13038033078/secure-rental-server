@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
@@ -58,6 +59,7 @@ public class BusCarServiceImpl implements IBusCarService {
 
     @Override
     public Boolean insertByBo(BusCarBo bo) {
+        checkPlateNumberUnique(null, bo.getPlateNumber());
         BusCar add = MapstructUtils.convert(bo, BusCar.class);
         validEntityBeforeSave(add);
         boolean flag = baseMapper.insert(add) > 0;
@@ -69,6 +71,7 @@ public class BusCarServiceImpl implements IBusCarService {
 
     @Override
     public Boolean updateByBo(BusCarBo bo) {
+        checkPlateNumberUnique(bo.getCarId(), bo.getPlateNumber());
         BusCar update = MapstructUtils.convert(bo, BusCar.class);
         validEntityBeforeSave(update);
         return baseMapper.updateById(update) > 0;
@@ -80,9 +83,27 @@ public class BusCarServiceImpl implements IBusCarService {
     }
 
     /**
+     * 校验车牌号唯一性
+     *
+     * @param carId       车辆ID（新增时为null，修改时排除自身）
+     * @param plateNumber 车牌号
+     */
+    private void checkPlateNumberUnique(Long carId, String plateNumber) {
+        if (StringUtils.isBlank(plateNumber)) {
+            return;
+        }
+        LambdaQueryWrapper<BusCar> lqw = Wrappers.lambdaQuery();
+        lqw.eq(BusCar::getPlateNumber, plateNumber);
+        lqw.ne(carId != null, BusCar::getCarId, carId);
+        if (baseMapper.exists(lqw)) {
+            throw new ServiceException("车牌号【" + plateNumber + "】已存在");
+        }
+    }
+
+    /**
      * 保存前的数据校验
      */
     private void validEntityBeforeSave(BusCar entity) {
-        // 可在此做业务校验，如车牌号唯一性等
+        // 车牌号唯一性已在 checkPlateNumberUnique 中校验
     }
 }
