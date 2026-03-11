@@ -40,17 +40,17 @@ public class BusCustomerVo implements Serializable {
     private String customerName;
 
     /**
-     * 手机号码(脱敏展示)
+     * 手机号码(脱敏展示：前3后4，如 138****5678)
      */
     @ExcelProperty(value = "手机号码")
     @Sensitive(strategy = SensitiveStrategy.PHONE)
     private String phone;
 
     /**
-     * 身份证号(脱敏展示)
+     * 身份证号(脱敏展示：前6后4)
      */
     @ExcelProperty(value = "身份证号")
-    @Sensitive(strategy = SensitiveStrategy.ID_CARD)
+    @Sensitive(strategy = SensitiveStrategy.ID_CARD_6_4)
     private String idCard;
 
     /**

@@ -17,12 +17,17 @@ import java.util.function.Function;
 public enum SensitiveStrategy {
 
     /**
-     * 身份证脱敏
+     * 身份证脱敏（默认前3后4）
      */
     ID_CARD(s -> DesensitizedUtil.idCardNum(s, 3, 4)),
 
     /**
-     * 手机号脱敏
+     * 身份证脱敏（前6后4，用于客户等场景）
+     */
+    ID_CARD_6_4(s -> DesensitizedUtil.idCardNum(s, 6, 4)),
+
+    /**
+     * 手机号脱敏（前3后4，如 138****5678）
      */
     PHONE(DesensitizedUtil::mobilePhone),
 
