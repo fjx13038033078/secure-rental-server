@@ -14,6 +14,7 @@ import org.dromara.rental.domain.bo.BusCustomerBo;
 import org.dromara.rental.domain.vo.BusCustomerVo;
 import org.dromara.rental.mapper.BusCustomerMapper;
 import org.dromara.rental.service.IBusCustomerService;
+import org.dromara.rental.utils.CustomerMaskUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,20 +32,40 @@ public class BusCustomerServiceImpl implements IBusCustomerService {
 
     @Override
     public BusCustomerVo queryById(Long customerId) {
-        return baseMapper.selectVoById(customerId);
+        BusCustomerVo vo = baseMapper.selectVoById(customerId);
+        applyMask(vo);
+        return vo;
     }
 
     @Override
     public TableDataInfo<BusCustomerVo> queryPageList(BusCustomerBo bo, PageQuery pageQuery) {
         LambdaQueryWrapper<BusCustomer> lqw = buildQueryWrapper(bo);
         Page<BusCustomerVo> result = baseMapper.selectVoPage(pageQuery.build(), lqw);
+        result.getRecords().forEach(this::applyMask);
         return TableDataInfo.build(result);
     }
 
     @Override
     public List<BusCustomerVo> queryList(BusCustomerBo bo) {
         LambdaQueryWrapper<BusCustomer> lqw = buildQueryWrapper(bo);
-        return baseMapper.selectVoList(lqw);
+        List<BusCustomerVo> list = baseMapper.selectVoList(lqw);
+        list.forEach(this::applyMask);
+        return list;
+    }
+
+    /**
+     * 对 Vo 的 phone、idCard 解密并脱敏（手机号前3后2，身份证前6后4）
+     */
+    private void applyMask(BusCustomerVo vo) {
+        if (vo == null) {
+            return;
+        }
+        if (vo.getPhone() != null) {
+            vo.setPhone(CustomerMaskUtils.maskPhone(vo.getPhone()));
+        }
+        if (vo.getIdCard() != null) {
+            vo.setIdCard(CustomerMaskUtils.maskIdCard(vo.getIdCard()));
+        }
     }
 
     private LambdaQueryWrapper<BusCustomer> buildQueryWrapper(BusCustomerBo bo) {

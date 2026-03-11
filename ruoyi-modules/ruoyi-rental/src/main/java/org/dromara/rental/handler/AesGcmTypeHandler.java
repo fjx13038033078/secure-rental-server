@@ -116,6 +116,43 @@ public class AesGcmTypeHandler extends BaseTypeHandler<String> {
     }
 
     /**
+     * 静态解密方法，供 Service 等非 MyBatis 场景使用
+     *
+     * @param encryptedBase64 Base64 编码的密文（可为 null）
+     * @return 解密后的明文，解密失败时返回原值
+     */
+    public static String decryptValue(String encryptedBase64) {
+        if (encryptedBase64 == null || encryptedBase64.isEmpty()) {
+            return encryptedBase64;
+        }
+        if (!AesKeyConfig.isKeyAvailable()) {
+            return encryptedBase64;
+        }
+        try {
+            byte[] combined = Base64.getDecoder().decode(encryptedBase64.trim());
+            if (combined.length <= GCM_IV_LENGTH) {
+                return encryptedBase64;
+            }
+            byte[] iv = new byte[GCM_IV_LENGTH];
+            byte[] ciphertext = new byte[combined.length - GCM_IV_LENGTH];
+            System.arraycopy(combined, 0, iv, 0, GCM_IV_LENGTH);
+            System.arraycopy(combined, GCM_IV_LENGTH, ciphertext, 0, ciphertext.length);
+
+            byte[] keyBytes = AesKeyConfig.getAesKeyBytes();
+            SecretKeySpec keySpec = new SecretKeySpec(keyBytes, "AES");
+
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmSpec);
+
+            byte[] decrypted = cipher.doFinal(ciphertext);
+            return new String(decrypted, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return encryptedBase64;
+        }
+    }
+
+    /**
      * AES-256-GCM 加密：明文 → Base64 密文
      * <p>
      * 存储格式：Base64( IV(12字节) + 密文+认证标签 )

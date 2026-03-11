@@ -5,8 +5,6 @@ import cn.idev.excel.annotation.ExcelProperty;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
-import org.dromara.common.sensitive.annotation.Sensitive;
-import org.dromara.common.sensitive.core.SensitiveStrategy;
 import org.dromara.rental.domain.BusCustomer;
 
 import java.io.Serial;
@@ -40,17 +38,15 @@ public class BusCustomerVo implements Serializable {
     private String customerName;
 
     /**
-     * 手机号码(脱敏展示：前3后4，如 138****5678)
+     * 手机号码(Service 层脱敏：前3后2，如 130******78)
      */
     @ExcelProperty(value = "手机号码")
-    @Sensitive(strategy = SensitiveStrategy.PHONE)
     private String phone;
 
     /**
-     * 身份证号(脱敏展示：前6后4)
+     * 身份证号(Service 层脱敏：前6后4，如 110101********1234)
      */
     @ExcelProperty(value = "身份证号")
-    @Sensitive(strategy = SensitiveStrategy.ID_CARD_6_4)
     private String idCard;
 
     /**
