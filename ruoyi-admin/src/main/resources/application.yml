@@ -133,6 +133,10 @@ tenant:
     - sys_client
     - sys_oss_config
     - flow_spel
+    # 汽车租赁业务表(无租户字段)
+    - bus_customer
+    - bus_car
+    - bus_rental_order
 
 # MyBatisPlus配置
 # https://baomidou.com/config/
