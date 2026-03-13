@@ -69,6 +69,14 @@ public interface ISysOssService {
     void download(Long ossId, HttpServletResponse response) throws IOException;
 
     /**
+     * 图片预览方法，以 inline 方式输出供浏览器直接显示
+     *
+     * @param ossId    OSS对象ID
+     * @param response HttpServletResponse对象
+     */
+    void preview(Long ossId, HttpServletResponse response) throws IOException;
+
+    /**
      * 删除OSS对象存储
      *
      * @param ids     OSS对象ID串

@@ -183,6 +183,25 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
         storage.download(sysOss.getFileName(), response.getOutputStream(), response::setContentLengthLong);
     }
 
+    @Override
+    public void preview(Long ossId, HttpServletResponse response) throws IOException {
+        SysOssVo sysOss = SpringUtils.getAopProxy(this).getById(ossId);
+        if (ObjectUtil.isNull(sysOss)) {
+            throw new ServiceException("文件数据不存在!");
+        }
+        String contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        if (StringUtils.isNotBlank(sysOss.getExt1())) {
+            SysOssExt ext1 = JsonUtils.parseObject(sysOss.getExt1(), SysOssExt.class);
+            if (ext1 != null && StringUtils.isNotBlank(ext1.getContentType())) {
+                contentType = ext1.getContentType();
+            }
+        }
+        response.setContentType(contentType);
+        response.setHeader("Content-Disposition", "inline");
+        OssClient storage = OssFactory.instance(sysOss.getService());
+        storage.download(sysOss.getFileName(), response.getOutputStream(), response::setContentLengthLong);
+    }
+
     /**
      * 上传 MultipartFile 到对象存储服务，并保存文件信息到数据库
      *

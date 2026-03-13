@@ -116,6 +116,8 @@ security:
     - /*/api-docs
     - /*/api-docs/**
     - /warm-flow-ui/config
+    # OSS 图片预览接口（img 标签加载时无法携带 token，需排除认证）
+    - /resource/oss/preview/**
 
 # 多租户配置
 tenant:
@@ -211,6 +213,11 @@ springdoc:
       packages-to-scan: org.dromara.generator
     - group: 5.工作流模块
       packages-to-scan: org.dromara.workflow
+
+# OSS 图片预览配置（解决 MinIO 127.0.0.1:9000 浏览器无法直连时图片不显示）
+oss:
+  # 预览代理 URL 前缀，配置后 MinIO 直连 URL 将替换为后端代理地址。开发环境填 /dev-api，生产环境按实际前端 API 前缀配置，留空则使用原始 URL
+  preview-url-prefix: /dev-api
 
 # 防止XSS攻击
 xss:
